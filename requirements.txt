@@ -3,3 +3,4 @@ python-dotenv
 agno
 groq
 openai
+youtube-transcript-api
