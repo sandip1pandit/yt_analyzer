@@ -1,58 +1,70 @@
+import re
 from textwrap import dedent
+
 from dotenv import load_dotenv
+from youtube_transcript_api import YouTubeTranscriptApi
+
 from agno.agent import Agent
-from agno.models.openai import OpenAIResponses
-from agno.tools.youtube import YouTubeTools
+from agno.models.groq import Groq
 
 load_dotenv()
+
+
+def get_video_id(url):
+    match = re.search(r"(?:v=|youtu\.be/|shorts/)([^&?/]+)", url)
+
+    if not match:
+        raise ValueError("Invalid YouTube URL")
+
+    return match.group(1)
+
+
+def get_transcript(url):
+    video_id = get_video_id(url)
+
+    api = YouTubeTranscriptApi()
+
+    transcript = api.fetch(
+        video_id,
+        languages=["en-US", "en"]
+    )
+
+    return " ".join(snippet.text for snippet in transcript)
+
 
 def build_youtube_agent():
     return Agent(
         name="YouTube Agent",
-        model=OpenAIResponses(id="gpt-5.2"),
-        tools=[YouTubeTools()],
-        instructions=dedent("""\
-            You are an expert YouTube content analyst with a keen eye for detail! 🎓
-            Follow these steps for comprehensive video analysis:
+        model=Groq(id="openai/gpt-oss-120b"),
+        instructions=dedent("""
+            You are an expert YouTube content analyst.
+
+            Analyze the provided YouTube transcript.
+
+            Provide:
+
             1. Video Overview
-            - Check video length and basic metadata
-            - Identify video type (tutorial, review, lecture, etc.)
-            - Note the content structure
-            2. Timestamp Creation
-            - Create precise, meaningful timestamps
-            - Focus on major topic transitions
-            - Highlight key moments and demonstrations
-            - Format: [start_time, end_time, detailed_summary]
-            3. Content Organization
-            - Group related segments
-            - Identify main themes
-            - Track topic progression
+            - Main topic
+            - Type of video
+            - Short summary
 
-            Your analysis style:
-            - Begin with a video overview
-            - Use clear, descriptive segment titles
-            - Include relevant emojis for content types:
-            📚 Educational
-            💻 Technical
-            🎮 Gaming
-            📱 Tech Review
-            🎨 Creative
-            - Highlight key learning points
-            - Note practical demonstrations
-            - Mark important references
+            2. Main Topics
+            - Identify the major topics discussed
+            - Explain each topic clearly
 
-            Quality Guidelines:
-            - Verify timestamp accuracy
-            - Avoid timestamp hallucination
-            - Ensure comprehensive coverage
-            - Maintain consistent detail level
-            - Focus on valuable content markers
+            3. Important Points
+            - List the most important ideas
+            - Mention useful examples and demonstrations
+
+            4. Timestamp Analysis
+            - Create timestamps only when timestamp information
+              is actually available.
+            - Never invent timestamps.
+
+            5. Key Takeaways
+            - Give the most important lessons from the video.
+
+            Be accurate and do not hallucinate information.
         """),
-        add_datetime_to_context=True,
         markdown=True,
     )
-
-# youtube_agent.print_response(
-#     "Analyze this video: https://www.youtube.com/watch?v=JkaxUblCGz0",
-#     stream=True,
-# )
