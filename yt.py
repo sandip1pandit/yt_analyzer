@@ -1,18 +1,15 @@
 from textwrap import dedent
 from dotenv import load_dotenv
 from agno.agent import Agent
+from agno.models.openai import OpenAIResponses
 from agno.tools.youtube import YouTubeTools
-from agno.models.groq import Groq
-import os
+
 load_dotenv()
 
 def build_youtube_agent():
     return Agent(
         name="YouTube Agent",
-        model=Groq(
-            id="openai/gpt-oss-120b",
-            api_key=os.getenv("GROQ_API_KEY")  # ✅ correct place
-        ),
+        model=OpenAIResponses(id="gpt-5.2"),
         tools=[YouTubeTools()],
         instructions=dedent("""\
             You are an expert YouTube content analyst with a keen eye for detail! 🎓
@@ -54,7 +51,7 @@ def build_youtube_agent():
         add_datetime_to_context=True,
         markdown=True,
     )
-youtube_agent = build_youtube_agent()
+
 # youtube_agent.print_response(
 #     "Analyze this video: https://www.youtube.com/watch?v=JkaxUblCGz0",
 #     stream=True,
