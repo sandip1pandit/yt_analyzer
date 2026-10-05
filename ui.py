@@ -1,5 +1,10 @@
 import streamlit as st
 from yt import build_youtube_agent
+import os
+st.write("GROQ key exists:", bool(os.getenv("GROQ_API_KEY")))
+st.write("GROQ key prefix:", os.getenv("GROQ_API_KEY", "")[:4])
+st.write("GROQ key length:", len(os.getenv("GROQ_API_KEY", "")))
+
 st.set_page_config(
     page_title="Youtube Video Analyzer",
     layout="centered"
