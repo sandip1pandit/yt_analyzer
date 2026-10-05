@@ -1,5 +1,5 @@
 import streamlit as st
-from youtube_analyzer import build_youtube_agent
+from yt import build_youtube_agent
 
 st.set_page_config(
     page_title="Youtube Video Analyzer",
