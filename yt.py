@@ -6,11 +6,16 @@ from agno.tools.youtube import YouTubeTools
 from agno.models.groq import Groq
 
 load_dotenv()
+def get_groq_key():
+    try:
+        return st.secrets["GROQ_API_KEY"]   # Streamlit Cloud
+    except Exception:
+        return os.getenv("GROQ_API_KEY")    # local .env
 
 def build_youtube_agent():
     return Agent(
         name="YouTube Agent",
-        model=Groq(id="openai/gpt-oss-120b"),
+        model=Groq(id="openai/gpt-oss-120b", api_key=get_groq_key()),
         tools=[YouTubeTools()],
         instructions=dedent("""\
             You are an expert YouTube content analyst with a keen eye for detail! 🎓
