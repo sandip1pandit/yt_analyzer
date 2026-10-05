@@ -1,27 +1,13 @@
-import os
 import streamlit as st
-from groq import Groq
+from yt import build_youtube_agent
 
-st.title("Groq Test")
+st.title("Agno Groq Test")
 
-api_key = os.getenv("GROQ_API_KEY")
-
-st.write("Key exists:", bool(api_key))
-st.write("Key prefix:", api_key[:4] if api_key else "None")
-st.write("Key length:", len(api_key) if api_key else 0)
+agent = build_youtube_agent()
 
 try:
-    client = Groq(api_key=api_key)
-
-    response = client.chat.completions.create(
-        model="openai/gpt-oss-120b",
-        messages=[
-            {"role": "user", "content": "Say hello"}
-        ],
-    )
-
-    st.success("Groq API is working!")
-    st.write(response.choices[0].message.content)
-
+    response = agent.run("Say hello and tell me which model you are using.")
+    st.success("Agno is working!")
+    st.write(response.content)
 except Exception as e:
-    st.error(f"Groq authentication failed: {e}")
+    st.error(f"Agno error: {e}")
